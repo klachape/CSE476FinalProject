@@ -9,6 +9,7 @@ API_KEY  = os.getenv("OPENAI_API_KEY", "cse476")
 API_BASE = os.getenv("API_BASE", "http://10.4.58.53:41701/v1")  
 MODEL    = os.getenv("MODEL_NAME", "bens_model")              
 
+#------------------------------------------------------API CALL FUNCTION------------------------------------------------------#
 def call_model_chat_completions(prompt: str,
                                 system: str = "You are a helpful assistant. Reply with only the final answer—no explanation.",
                                 model: str = MODEL,
@@ -52,17 +53,25 @@ def call_model_chat_completions(prompt: str,
     except requests.RequestException as e:
         return {"ok": False, "text": None, "raw": None, "status": -1, "error": str(e), "headers": {}}
 
-    # %% Direct call example
-demo_prompt = "What is 17 + 28? Answer with just the number."
-result = call_model_chat_completions(demo_prompt)
-print("OK:", result["ok"], "HTTP:", result["status"])
-print("MODEL SAYS:", (result["text"] or "").strip())
 
-# Optional: Inspect rate-limit headers if your provider exposes them
-for k in ["x-ratelimit-remaining-requests", "x-ratelimit-limit-requests", "x-request-id"]:
-    if k in result["headers"]:
-        print(f"{k}: {result['headers'][k]}")
 
+
+#------------------------------------------------------------------------Inference-Time Techniques------------------------------------------------------------------------#
+def technique_1(prompt):
+    #TODO: implement technique 1 and change name accordingly
+    return "technique_1 response"
+
+def technique_2(prompt):
+    #TODO: implement technique 2 and change name accordingly
+    return "technique_2 response"
+
+def technique_3(prompt):
+    #TODO: implement technique 3 and change name accordingly
+    return "technique_3 response"
+
+
+
+#------------------------------------------------------------------------Evaluation Framework------------------------------------------------------------------------#
         # %% Define three tests: input + expected
 tests = [
     {
