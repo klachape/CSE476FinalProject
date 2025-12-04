@@ -274,3 +274,16 @@ def self_evaluate_tests(tests, model=MODEL, grader_model=None, sleep_sec=0.2, ve
 
 # Example:
 results_llm_judge = self_evaluate_tests(tests, verbose=True, model=MODEL, grader_model=MODEL)
+
+#--------------------------------------------------------Agent Loop--------------------------------------------------------#
+def agent_loop(question_input: str) -> str:
+    """
+    Choose the Inference-Time Technique to apply based on the question_input.
+    """
+    # Simple heuristic to choose technique based on keywords in the question
+    if "solve" in question_input.lower() or "calculate" in question_input.lower():
+        return technique_1(question_input)
+    elif "common sense" in question_input.lower() or "everyday" in question_input.lower():
+        return technique_2(question_input)
+    else:
+        return technique_3(question_input)
