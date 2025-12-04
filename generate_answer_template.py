@@ -34,8 +34,9 @@ def build_answers(questions: List[Dict[str, Any]]) -> List[Dict[str, str]]:
         # Example: assume you have an agent loop that produces an answer string.
         # real_answer = agent_loop(question["input"])
         # answers.append({"output": real_answer})
-        placeholder_answer = f"Placeholder answer for question {idx}"
-        answers.append({"output": placeholder_answer})
+        real_answer = agent_loop(question["input"])
+        answers.append({"output": real_answer})
+        time.sleep(0.2)  # Be polite to the API
     return answers
 
 
