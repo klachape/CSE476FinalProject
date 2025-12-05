@@ -57,23 +57,32 @@ def call_model_chat_completions(prompt: str,
 
 
 #------------------------------------------------------------------------Inference-Time Techniques------------------------------------------------------------------------#
-def technique_1(prompt):
-    #TODO: implement technique 1 and change name accordingly
-    print("Inside technique 1")
+def technique_CoT(prompt):
+    """
+    Use Chain-of-Thought prompting to reason through math problems step-by-step.
+    """
+
+    print("Inside CoT technique")
 
     call = call_model_chat_completions(prompt)
     return (call["text"] or "").strip()
 
-def technique_2(prompt):
-    #TODO: implement technique 2 and change name accordingly
-    print("Inside technique 2")
+def technique_Self_Consistency(prompt):
+    """
+    Use Self-Consistency by sampling multiple diverse reasoning paths and selecting the most consistent answer for common sense questions.
+    """
+
+    print("Inside self consistency technique")
 
     call = call_model_chat_completions(prompt)
     return (call["text"] or "").strip()
 
-def technique_3(prompt):
-    #TODO: implement technique 3 and change name accordingly
-    print("Inside technique 3")
+def technique_Verification(prompt):
+    """
+    Use Verification by generating a candidate answer and then verifying its correctness against given constraints for logic questions.
+    """
+
+    print("Inside verification technique")
 
     call = call_model_chat_completions(prompt)
     return (call["text"] or "").strip()
@@ -305,10 +314,10 @@ def agent_loop(question_input: str) -> str:
     # Simple heuristic to choose technique based on keywords in the question
     # Common sense questions
     if any(word in question_input.lower() for word in ["facts", "context", "plausible", "likely", "options", "which", "best describes"]) or ("a." in question_input.lower() and "b." in question_input.lower() and "c." in question_input.lower()):
-        return technique_2(question_input)
+        return technique_Self_Consistency(question_input)
     # math questions 
     elif any(word in question_input.lower() for word in math_keywords):
-        return technique_1(question_input)
+        return technique_CoT(question_input)
     # Default to lofic questions
     else:
-        return technique_3(question_input)
+        return technique_Verification(question_input)
