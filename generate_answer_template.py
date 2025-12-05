@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any, Dict, List
+from agent import agent_loop
 
 
 INPUT_PATH = Path("cse_476_final_project_test_data.json")
@@ -21,7 +22,7 @@ OUTPUT_PATH = Path("cse_476_final_project_answers.json")
 
 
 def load_questions(path: Path) -> List[Dict[str, Any]]:
-    with path.open("r") as fp:
+    with path.open("r", encoding="utf-8-sig") as fp:
         data = json.load(fp)
     if not isinstance(data, list):
         raise ValueError("Input file must contain a list of question objects.")
@@ -36,7 +37,6 @@ def build_answers(questions: List[Dict[str, Any]]) -> List[Dict[str, str]]:
         # answers.append({"output": real_answer})
         real_answer = agent_loop(question["input"])
         answers.append({"output": real_answer})
-        time.sleep(0.2)  # Be polite to the API
     return answers
 
 
@@ -65,10 +65,10 @@ def main() -> None:
     questions = load_questions(INPUT_PATH)
     answers = build_answers(questions)
 
-    with OUTPUT_PATH.open("w") as fp:
+    with OUTPUT_PATH.open("w", encoding="utf-8-sig") as fp:
         json.dump(answers, fp, ensure_ascii=False, indent=2)
 
-    with OUTPUT_PATH.open("r") as fp:
+    with OUTPUT_PATH.open("r", encoding="utf-8-sig") as fp:
         saved_answers = json.load(fp)
     validate_results(questions, saved_answers)
     print(

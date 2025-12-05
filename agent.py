@@ -59,15 +59,24 @@ def call_model_chat_completions(prompt: str,
 #------------------------------------------------------------------------Inference-Time Techniques------------------------------------------------------------------------#
 def technique_1(prompt):
     #TODO: implement technique 1 and change name accordingly
-    return "technique_1 response"
+    print("Inside technique 1")
+
+    call = call_model_chat_completions(prompt)
+    return (call["text"] or "").strip()
 
 def technique_2(prompt):
     #TODO: implement technique 2 and change name accordingly
-    return "technique_2 response"
+    print("Inside technique 2")
+
+    call = call_model_chat_completions(prompt)
+    return (call["text"] or "").strip()
 
 def technique_3(prompt):
     #TODO: implement technique 3 and change name accordingly
-    return "technique_3 response"
+    print("Inside technique 3")
+
+    call = call_model_chat_completions(prompt)
+    return (call["text"] or "").strip()
 
 
 
@@ -282,13 +291,24 @@ def agent_loop(question_input: str) -> str:
     """
     # Keep track of call amount so I don't exceed 20 calls
     callCount = 0
-    if call_count > 20:
+    if callCount > 20:
         raise RuntimeError("More than 20 errors for one question")
 
+    # i can think of a lot of keywords for math problems, so I made an array to hold them all!
+    math_keywords = [
+        "solve", "calculate", " compute ", "equation",
+        "how many", "total", "sum", "average", "percent",
+        "ratio", "fraction", "integer", "distance", "ounces",
+        "meters", "greater than", "less than", "minimum", "maximum", "shared", "divided", "multiplied", "added", "subtracted"
+    ]
+
     # Simple heuristic to choose technique based on keywords in the question
-    if "solve" in question_input.lower() or "calculate" in question_input.lower():
-        return technique_1(question_input)
-    elif "common sense" in question_input.lower() or "everyday" in question_input.lower():
+    # Common sense questions
+    if any(word in question_input.lower() for word in ["facts", "context", "plausible", "likely", "options", "which", "best describes"]) or ("a." in question_input.lower() and "b." in question_input.lower() and "c." in question_input.lower()):
         return technique_2(question_input)
+    # math questions 
+    elif any(word in question_input.lower() for word in math_keywords):
+        return technique_1(question_input)
+    # Default to lofic questions
     else:
         return technique_3(question_input)
