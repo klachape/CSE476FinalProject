@@ -10,6 +10,8 @@ API_KEY  = os.getenv("OPENAI_API_KEY", "cse476")
 API_BASE = os.getenv("API_BASE", "http://10.4.58.53:41701/v1")  
 MODEL    = os.getenv("MODEL_NAME", "bens_model")              
 
+callCount = 0   #global call count variable
+
 #------------------------------------------------------API CALL FUNCTION------------------------------------------------------#
 def call_model_chat_completions(prompt: str,
                                 system: str = "You are a helpful assistant. Reply with only the final answer—no explanation.",
@@ -20,6 +22,7 @@ def call_model_chat_completions(prompt: str,
     Calls an OpenAI-style /v1/chat/completions endpoint and returns:
     { 'ok': bool, 'text': str or None, 'raw': dict or None, 'status': int, 'error': str or None, 'headers': dict }
     """
+    callCount += 1
     url = f"{API_BASE}/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -72,7 +75,7 @@ def technique_CoT(prompt: str) -> str:
     
     return (call["text"] or "").strip()
 
-def technique_Self_Consistency(prompt: str, iterations: int = 7) -> str:
+def technique_Self_Consistency(prompt: str, iterations: int = 5) -> str:
     """
     Use Self-Consistency by sampling multiple diverse reasoning paths and selecting the most consistent answer for common sense questions.
     """
@@ -101,15 +104,15 @@ def technique_Verification(prompt):
 
     #Verification implementation
     call = call_model_chat_completions(prompt)
-    result = (call["text"] or "").strip()])
+    result = (call["text"] or "").strip()
 
     #check if multiple choice prompt
-    if (" a. " in prompt.lower() and " b. " in prompt.lower()):
-        for choice in ["a", "b", "c", "d", "e"]:    #if the model's answer matches one of the choices, return that choice
+    if ("a." in prompt.lower() and "b." in prompt.lower() and "c." in prompt.lower()):
+        for choice in ["a", "b", "c", "d"]:    #if the model's answer matches one of the choices, return that choice
             if result.strip().lower().startswith(choice) or choice in result.strip().lower():
                 return choice
 
-        call2 = call_model_chat_completions(prompt + "\n Answer with only one letter: a, b, c, d, or e. Do not explain or elaborate.")  #else, ask model to pick a choice directly
+        call2 = call_model_chat_completions(prompt + "\n Answer with only one letter: a, b, c, d. Do not explain or elaborate.")  #else, ask model to pick a choice directly
         return (call2["text"] or "").strip()    #return the new answer
     
     #perhaps I will add new verification methods later
@@ -328,7 +331,7 @@ def agent_loop(question_input: str) -> str:
     Choose the Inference-Time Technique to apply based on the question_input.
     """
     # Keep track of call amount so I don't exceed 20 calls
-    callCount = 0
+    callCount = 0   #reset call count at start of each question
     if callCount > 20:
         raise RuntimeError("More than 20 errors for one question")
 
@@ -342,7 +345,7 @@ def agent_loop(question_input: str) -> str:
 
     # Simple heuristic to choose technique based on keywords in the question
     # Common sense questions
-    if any(word in question_input.lower() for word in ["facts", "context", "plausible", "likely", "options", "which", "best describes"]):
+    if any(word in question_input.lower() for word in ["facts", "context", "plausible", "likely", "best describes"]):
         return technique_Self_Consistency(question_input)
     # math questions 
     elif any(word in question_input.lower() for word in math_keywords):
