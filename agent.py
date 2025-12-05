@@ -280,6 +280,11 @@ def agent_loop(question_input: str) -> str:
     """
     Choose the Inference-Time Technique to apply based on the question_input.
     """
+    # Keep track of call amount so I don't exceed 20 calls
+    callCount = 0
+    if call_count > 20:
+        raise RuntimeError("More than 20 errors for one question")
+
     # Simple heuristic to choose technique based on keywords in the question
     if "solve" in question_input.lower() or "calculate" in question_input.lower():
         return technique_1(question_input)
