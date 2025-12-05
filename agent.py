@@ -4,6 +4,7 @@
 
 import os, json, textwrap, re, time
 import requests
+import collections
 
 API_KEY  = os.getenv("OPENAI_API_KEY", "cse476")
 API_BASE = os.getenv("API_BASE", "http://10.4.58.53:41701/v1")  
@@ -62,9 +63,13 @@ def technique_CoT(prompt):
     Use Chain-of-Thought prompting to reason through math problems step-by-step.
     """
 
-    print("Inside CoT technique")
+    print("Inside CoT technique")   #debug line
 
-    call = call_model_chat_completions(prompt)
+    #Cot implementation
+    system_prompt = "You are a helpful math tutor. Think through the problem step-by-step but only provide the final answer, nothing else." #prompt encourages CoT reasoning
+
+    call = call_model_chat_completions(prompt, system_prompt=system_prompt, temperature=0) #temperature 0 for deterministic output
+    
     return (call["text"] or "").strip()
 
 def technique_Self_Consistency(prompt):
@@ -72,9 +77,13 @@ def technique_Self_Consistency(prompt):
     Use Self-Consistency by sampling multiple diverse reasoning paths and selecting the most consistent answer for common sense questions.
     """
 
-    print("Inside self consistency technique")
+    print("Inside self consistency technique")   #debug line
+
+    #Self consistency implementation
+
 
     call = call_model_chat_completions(prompt)
+
     return (call["text"] or "").strip()
 
 def technique_Verification(prompt):
@@ -82,9 +91,13 @@ def technique_Verification(prompt):
     Use Verification by generating a candidate answer and then verifying its correctness against given constraints for logic questions.
     """
 
-    print("Inside verification technique")
+    print("Inside verification technique")   #debug line
+
+    #Verification implementation
+
 
     call = call_model_chat_completions(prompt)
+
     return (call["text"] or "").strip()
 
 
