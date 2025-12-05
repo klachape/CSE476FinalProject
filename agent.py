@@ -58,7 +58,7 @@ def call_model_chat_completions(prompt: str,
 
 
 #------------------------------------------------------------------------Inference-Time Techniques------------------------------------------------------------------------#
-def technique_CoT(prompt):
+def technique_CoT(prompt: str) -> str:
     """
     Use Chain-of-Thought prompting to reason through math problems step-by-step.
     """
@@ -68,11 +68,11 @@ def technique_CoT(prompt):
     #Cot implementation
     system_prompt = "You are a helpful math tutor. Think through the problem step-by-step but only provide the final answer, nothing else." #prompt encourages CoT reasoning
 
-    call = call_model_chat_completions(prompt, system_prompt=system_prompt, temperature=0) #temperature 0 for deterministic output
+    call = call_model_chat_completions(prompt, system=system_prompt, temperature=0) #temperature 0 for deterministic output
     
     return (call["text"] or "").strip()
 
-def technique_Self_Consistency(prompt):
+def technique_Self_Consistency(prompt: str, iterations: int = 7) -> str:
     """
     Use Self-Consistency by sampling multiple diverse reasoning paths and selecting the most consistent answer for common sense questions.
     """
@@ -80,11 +80,17 @@ def technique_Self_Consistency(prompt):
     print("Inside self consistency technique")   #debug line
 
     #Self consistency implementation
+    results = []
+    
+    for _ in range(iterations):
+        call = call_model_chat_completions(prompt, temperature=0.7) #higher temperature for diversity
+        result = (call["text"] or "").strip()
+        results.append(result)
+    
+    count = collections.Counter(results)
+    top_result, _ = count.most_common(1)[0] #chooses top result based on most common answer
 
-
-    call = call_model_chat_completions(prompt)
-
-    return (call["text"] or "").strip()
+    return top_result
 
 def technique_Verification(prompt):
     """
@@ -326,7 +332,7 @@ def agent_loop(question_input: str) -> str:
 
     # Simple heuristic to choose technique based on keywords in the question
     # Common sense questions
-    if any(word in question_input.lower() for word in ["facts", "context", "plausible", "likely", "options", "which", "best describes"]) or ("a." in question_input.lower() and "b." in question_input.lower() and "c." in question_input.lower()):
+    if any(word in question_input.lower() for word in ["facts", "context", "plausible", "likely", "options", "which", "best describes"]):
         return technique_Self_Consistency(question_input)
     # math questions 
     elif any(word in question_input.lower() for word in math_keywords):
