@@ -87,24 +87,34 @@ def technique_Self_Consistency(prompt: str, iterations: int = 7) -> str:
         result = (call["text"] or "").strip()
         results.append(result)
     
-    count = collections.Counter(results)
+    count = collections.Counter(results)    #count occurrences of each answer
     top_result, _ = count.most_common(1)[0] #chooses top result based on most common answer
 
     return top_result
 
 def technique_Verification(prompt):
     """
-    Use Verification by generating a candidate answer and then verifying its correctness against given constraints for logic questions.
+    Use Verification by generating a candidate answer and then verifying its correctness against given constraints for logic questions (i.e. multiple choice).
     """
 
     print("Inside verification technique")   #debug line
 
     #Verification implementation
-
-
     call = call_model_chat_completions(prompt)
+    result = (call["text"] or "").strip()])
 
-    return (call["text"] or "").strip()
+    #check if multiple choice prompt
+    if (" a. " in prompt.lower() and " b. " in prompt.lower()):
+        for choice in ["a", "b", "c", "d", "e"]:    #if the model's answer matches one of the choices, return that choice
+            if result.strip().lower().startswith(choice) or choice in result.strip().lower():
+                return choice
+
+        call2 = call_model_chat_completions(prompt + "\n Answer with only one letter: a, b, c, d, or e. Do not explain or elaborate.")  #else, ask model to pick a choice directly
+        return (call2["text"] or "").strip()    #return the new answer
+    
+    #perhaps I will add new verification methods later
+
+    return result
 
 
 
@@ -337,6 +347,6 @@ def agent_loop(question_input: str) -> str:
     # math questions 
     elif any(word in question_input.lower() for word in math_keywords):
         return technique_CoT(question_input)
-    # Default to lofic questions
+    # Default to logic questions
     else:
         return technique_Verification(question_input)
