@@ -10,7 +10,6 @@ API_KEY  = os.getenv("OPENAI_API_KEY", "cse476")
 API_BASE = os.getenv("API_BASE", "http://10.4.58.53:41701/v1")  
 MODEL    = os.getenv("MODEL_NAME", "bens_model")              
 
-callCount = 0   #global call count variable
 
 #------------------------------------------------------API CALL FUNCTION------------------------------------------------------#
 def call_model_chat_completions(prompt: str,
@@ -22,7 +21,6 @@ def call_model_chat_completions(prompt: str,
     Calls an OpenAI-style /v1/chat/completions endpoint and returns:
     { 'ok': bool, 'text': str or None, 'raw': dict or None, 'status': int, 'error': str or None, 'headers': dict }
     """
-    callCount += 1
     url = f"{API_BASE}/chat/completions"
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -330,11 +328,6 @@ def agent_loop(question_input: str) -> str:
     """
     Choose the Inference-Time Technique to apply based on the question_input.
     """
-    # Keep track of call amount so I don't exceed 20 calls
-    callCount = 0   #reset call count at start of each question
-    if callCount > 20:
-        raise RuntimeError("More than 20 errors for one question")
-
     # i can think of a lot of keywords for math problems, so I made an array to hold them all!
     math_keywords = [
         "solve", "calculate", " compute ", "equation",
